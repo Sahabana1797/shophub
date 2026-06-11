@@ -102,23 +102,26 @@ class Dashboard extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xffF5F5F5),
 
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
+     appBar: AppBar(
+  automaticallyImplyLeading: false,
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.person),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProfilePage(),
           ),
-        ],
-        backgroundColor: const Color(0xffFF6F00),
-        foregroundColor: Colors.white,
-        title: const Text("The ShopHub"),
-        centerTitle: true,
-      ),
+        );
+      },
+    ),
+  ],
+  backgroundColor: const Color(0xffFF6F00),
+  foregroundColor: Colors.white,
+  title: const Text("The ShopHub"),
+  centerTitle: true,
+),
 
       body: SingleChildScrollView(
         child: Column(
