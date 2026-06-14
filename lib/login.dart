@@ -1,10 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shophub/forgot_password.dart';
-import 'user_type.dart';
-import 'register.dart';
+import 'package:shophub/register.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  bool isLoading = false;
+
+  Future<void> loginUser() async {
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter email and password"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+Navigator.pushReplacementNamed(context, '/');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Login Successful"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = "Login failed";
+
+      if (e.code == "user-not-found") {
+        errorMessage = "No account found with this email";
+      } else if (e.code == "wrong-password") {
+        errorMessage = "Incorrect password";
+      } else if (e.code == "invalid-email") {
+        errorMessage = "Invalid email address";
+      } else {
+        errorMessage = e.message ?? "Login failed";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +147,7 @@ class Login extends StatelessWidget {
                   child: Column(
                     children: [
                       TextFormField(
+                        controller: emailController,
                         decoration: InputDecoration(
                           hintText: "Email",
                           prefixIcon: const Icon(Icons.email),
@@ -82,6 +160,7 @@ class Login extends StatelessWidget {
                       const SizedBox(height: 15),
 
                       TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: "Password",
@@ -98,12 +177,15 @@ class Login extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(context,
-                            MaterialPageRoute(builder:(context)=> const ForgotPasswordPage()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ForgotPasswordPage(),
+                              ),
+                            );
                           },
-                          child: const Text(
-                            "Forgot Password?",
-                          ),
+                          child: const Text("Forgot Password?"),
                         ),
                       ),
 
@@ -114,57 +196,52 @@ class Login extends StatelessWidget {
                         height: 55,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xffFF6F00),
+                            backgroundColor: const Color(0xffFF6F00),
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const UserTypePage(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "LOGIN",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                            ),
-                          ),
+                          onPressed: isLoading ? null : loginUser,
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  "LOGIN",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                       ),
 
                       const SizedBox(height: 20),
 
                       Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    const Text("New user? "),
-    TextButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const RegisterPage(),
-          ),
-        );
-      },
-      child: const Text(
-        "Create Account",
-        style: TextStyle(
-          color: Colors.orange,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-  ],
-),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("New user? "),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RegisterPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Create Account",
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

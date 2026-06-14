@@ -8,7 +8,7 @@ class Dashboard extends StatelessWidget {
 
   const Dashboard({
     super.key,
-    required this.isBusinessOwner,
+    this.isBusinessOwner = false,
   });
 
   Widget productCard(

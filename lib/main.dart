@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:shophub/login.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shophub/firebase_options.dart';
+import 'package:shophub/auth_gate.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
@@ -13,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'The ShopHub',
-      home: const Login(),
+      home: const AuthGate(),
     );
   }
 }
